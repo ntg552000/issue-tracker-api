@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "API",
   "main": "index.js",
+  "engines": {
+    "node": "10.x",
+    "npm": "6.x"
+  },
   "scripts": {
     "start": "nodemon -w . -w .env -e js,graphql server/server.js",
     "lint": "eslint .",
