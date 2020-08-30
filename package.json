@@ -1,0 +1,34 @@
+{
+  "name": "pro-mern-stack-2-api",
+  "version": "1.0.0",
+  "description": "API",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon -w . -w .env -e js,graphql server/server.js",
+    "lint": "eslint .",
+    "lintfix": "eslint . --fix",
+    "intiDB": "mongo $DB_URL issuetracker scripts/init.mongo.js",
+    "genDB": "mongo $DB_URL issuetracker scripts/generate_issues.mongo.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server-express": "^2.14.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.17.1",
+    "google-auth-library": "^6.0.6",
+    "graphql": "^15.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.5.9",
+    "nodemon": "^2.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.22.0"
+  }
+}
