@@ -64,7 +64,7 @@ routes.post('/signin', async (req, res) => {
 });
 
 routes.post('/signout', (req, res) => {
-  res.clearCookie('jwt');
+  res.clearCookie('jwt', { domain: process.env.COOKIE_DOMAIN });
   res.json({ status: 'ok' });
 });
 

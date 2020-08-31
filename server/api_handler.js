@@ -48,6 +48,7 @@ function installHandler(app) {
   } else {
     cors = 'false';
   }
+  console.log('Graphql Cors: ', cors);
   server.applyMiddleware({
     app,
     cors,
@@ -57,8 +58,6 @@ function installHandler(app) {
 
 function getContext({ req }) {
   const user = auth.getUser(req);
-  // if (!user || !user.signedIn)
-  //   throw new AuthenticationError('Must be logged in');
   return { user };
 }
 
