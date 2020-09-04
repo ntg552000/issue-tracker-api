@@ -4,6 +4,7 @@ const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 const { AuthenticationError } = require('apollo-server-express');
 const cors = require('cors');
+const axios = require('axios');
 
 const routes = new Router();
 routes.use(bodyParser.json());
@@ -30,29 +31,66 @@ routes.post('/signin', async (req, res) => {
   if (!JWT_SECRET) {
     res.status(500).send('Missing JWT_SECRET. Refusing to authenticate');
   }
-  const googleToken = req.body.google_token;
-  if (!googleToken) {
-    res.status(400).send({ code: 400, message: 'Missing Token' });
-    return;
-  }
-
-  const client = new OAuth2Client();
   let payload;
-  try {
-    const ticket = await client.verifyIdToken({ idToken: googleToken });
-    payload = ticket.getPayload();
-  } catch (error) {
-    res.status(403).send('Invalid credentials');
-    return;
-  }
+  switch (req.body.type) {
+    case 'gg':
+      const googleToken = req.body.google_token;
+      if (!googleToken) {
+        res.status(400).send({ code: 400, message: 'Missing Token' });
+        return;
+      }
 
-  const { given_name: givenName, name, email, picture } = payload;
+      const client = new OAuth2Client();
+      try {
+        const ticket = await client.verifyIdToken({ idToken: googleToken });
+        payload = ticket.getPayload();
+      } catch (error) {
+        res.status(403).send('Invalid credentials');
+        return;
+      }
+      break;
+    case 'fb':
+      const facebookToken = req.body.facebook_token;
+      const userId = req.body.user_id;
+      if (!facebookToken) {
+        res.status(400).send({ code: 400, message: 'Missing Token' });
+        return;
+      }
+      if (!userId) {
+        res.status(400).send({ code: 400, message: 'Missing user_id' });
+        return;
+      }
+      const response = await axios.get(`https://graph.facebook.com/${userId}`, {
+        params: {
+          fields: 'id,name,picture,email',
+          access_token: facebookToken,
+        },
+      });
+      const { data } = response;
+      try {
+        payload = {
+          given_name: data.name,
+          picture: data.picture.data.url,
+          email: data.email,
+        };
+      } catch (error) {
+        res.status(403).send({ code: 403, message: 'Invalid credentials' });
+        return;
+      }
+      break;
+    default:
+      res
+        .status(403)
+        .send({ code: 403, message: 'Invalid type oAuthenticate' });
+      return;
+  }
+  const { given_name: givenName, email, picture } = payload;
   const credentials = {
     signedIn: true,
     givenName,
-    name,
     email,
     picture,
+    type: req.body.type,
   };
   const token = jwt.sign(credentials, JWT_SECRET);
   res.cookie('jwt', token, {
